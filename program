@@ -1,0 +1,92 @@
+#include <stdio.h>
+#include<string.h>
+
+int j=0,top=-1;
+char in[50],post[50],stack[48];
+
+void push(char t);
+void pop();
+void move();
+void rev()
+{
+    int i=0,l=strlen(stack);
+    while(i<=l)
+    {
+        char temp;
+        temp=stack[i];
+        stack[i]=stack[l-i-1];
+        stack[l-i-1]=temp;
+        i++;
+    }
+}
+int main()
+{
+    int i=0,l;
+    printf("Enter the expression : ");
+    scanf("%s",in);
+    printf("Infix : %s\n\n",in);
+    l=strlen(in);
+    while(i<l)
+    {
+        printf("\n\nLoop %d : \n\n",i+1);
+        if(in[i]=='+'||in[i]=='-'||in[i]=='*'||in[i]=='/'||in[i]=='^'||in[i]=='('||in[i]==')')
+        {
+            push(in[i]);
+            i++;
+        }
+        else
+        post[j++]=in[i++];
+        //printf("\nPost : %s\n",post);
+        printf("\n\nInfix : %s\n\nPostfix : %s\n\n",in,post);
+    }
+    move();
+    printf("Infix : %s\n\nPostfix : %s\n",in,post);
+    return 0;
+}
+void push(char t)
+{
+    if(t==')')
+    {
+        while(stack[top]!='('&&top!=-1)
+        {
+            pop();
+            top--;
+        }
+        return;
+    }
+    Again : 
+    if((stack[top]=='/'||stack[top]=='*')&&(t=='-'||t=='+'))
+    {
+        pop();
+        goto Again;
+    }
+    else if((t=='+'||t=='-'||t=='*'||t=='/')&&stack[top]=='^')
+    {
+        pop();
+        goto Again;
+    }
+    else if((t=='+'||t=='-')&&(stack[top]=='+'||stack[top]=='-'))
+    {
+        pop();
+        goto Again;
+    }
+    else if((t=='*'||t=='/')&&(stack[top]=='*'||stack[top]=='/'))
+    {
+        pop();
+        goto Again;
+    }
+    else
+    stack[++top]=t;
+    printf("\nStack : %s\n",stack);
+}
+void pop()
+{
+    post[++j]=stack[top--];
+}
+void move()
+{   
+    printf("\n%s\n",stack);
+    rev();    
+    printf("\n%s\n",stack);
+    strcat(post,stack);    
+}
