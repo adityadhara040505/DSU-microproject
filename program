@@ -1,97 +1,188 @@
-#include <stdio.h> 
- #include<string.h> 
-  
- int j=0,top=-1; 
- char in[50],post[50],stack[48]; 
-  
- void push(char t); 
- void pop(); 
- void move(); 
- void rev() 
- { 
-     int i=0,l=strlen(stack); 
-     while(i<=l) 
-     { 
-         char temp; 
-         temp=stack[i]; 
-         stack[i]=stack[l-i-1]; 
-         stack[l-i-1]=temp; 
-         i++; 
-     } 
- } 
-char* last()
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#define pf printf
+#define sf scanf
+
+struct node
 {
-    top--;
-    return &stack[top+1];
+    char name[35];
+    double no;
+    struct node *next;
+};
+struct node *b[26];
+
+void initialise();
+void add();
+void deletion();
+void display();
+void destroy();
+void search();
+
+int main()
+{
+    int ch;
+    initialise();
+    do
+    {
+        pf("\nPress 1 : Add a number in the contacts\nPress 2 : Delete a number from the contacts\nPress 3 : To search a contact in the contacts\nPress 4 : Display all contacts \nPress 5 : Destroy the contacts \nPress 6 : To exit the program\nChoice : ");
+        sf("%d",&ch);
+        switch(ch)
+        {
+            case 1 : add();break;
+            case 2 : deletion();break;
+            case 3 : search();break;
+            case 4 : display();break;
+            case 5 : destroy();break;
+            case 6 : pf("The program ends\nThan you");break;
+            default : pf("Wrong choice\nPlease enter your choice again");
+        }
+    }while(ch!=6);
+    return 0;
 }
- int main() 
- { 
-     int i=0,l; 
-     printf("Enter the expression : "); 
-     scanf("%s",in); 
-     printf("Infix : %s\n\n",in); 
-     l=strlen(in); 
-     while(i<l) 
-     { 
-         printf("\n\nLoop %d : \n\n",i+1); 
-         if(in[i]=='+'||in[i]=='-'||in[i]=='*'||in[i]=='/'||in[i]=='^'||in[i]=='('||in[i]==')') 
-         { 
-             push(in[i]); 
-             i++; 
-         } 
-         else 
-         post[j++]=in[i++]; 
-         //printf("\nPost : %s\n",post); 
-         printf("\n\nInfix : %s\n\nPostfix : %s\n\n",in,post); 
-     } 
-     move(); 
-     printf("Infix : %s\n\nPostfix : %s\n",in,post); 
-     return 0; 
- } 
- void push(char t) 
- { 
-     if(t==')') 
-     { 
-         while(stack[top]!='('&&top!=-1) 
-         { 
-             pop(); 
-             top--; 
-         } 
-         return; 
-     } 
-     Again :  
-     if((stack[top]=='/'||stack[top]=='*')&&(t=='-'||t=='+')) 
-     { 
-         pop(); 
-         goto Again; 
-     } 
-     else if((t=='+'||t=='-'||t=='*'||t=='/')&&stack[top]=='^') 
-     { 
-         pop(); 
-         goto Again; 
-     } 
-     else if((t=='+'||t=='-')&&(stack[top]=='+'||stack[top]=='-')) 
-     { 
-         pop(); 
-         goto Again; 
-     } 
-     else if((t=='*'||t=='/')&&(stack[top]=='*'||stack[top]=='/')) 
-     { 
-         pop(); 
-         goto Again; 
-     } 
-     else 
-     stack[++top]=t; 
-     printf("\nStack : %s\n",stack); 
- } 
- void pop() 
- { 
-     strcat(post,last());
- } 
- void move() 
- {    
-     printf("\n%s\n",stack); 
-     rev();     
-     printf("\n%s\n",stack); 
-     strcat(post,stack);     
- }
+void initialise()
+{
+    int i;
+    for(i=0;i<26;i++)
+    {
+        b[i]=NULL;
+    }
+}
+void add()
+{
+    struct node *nn,*temp;
+    int index;
+    nn=(struct node*)malloc(sizeof(struct node));
+    pf("Enter Name of the person to be added in the contacts : ");
+    gets(nn->name);
+    gets(nn->name);
+    pf("Enter contact number of %s : ",nn->name);
+    sf("%lf",&nn->no);
+    nn->next=NULL;
+    toupper(nn->name[0]);
+    index=nn->name[0]%65;
+    if(b[index]==NULL)
+    {
+        b[index]=nn;
+        return;
+    }
+    temp=b[index];
+    while(temp->next!=NULL)
+    {
+        temp=temp->next;
+    }
+    temp->next=nn;
+}
+void display()
+{
+    int i;
+    struct node *temp;
+    for(i=0;i<26;i++)
+    {
+        if(b[i]==NULL)
+        {
+            continue;
+        }
+        else
+        {
+            temp=b[i];
+            while(temp!=NULL)
+            {
+                pf("\n\nName : %s\nContact number : %.0lf",temp->name,temp->no);
+                temp=temp->next;
+            }
+        }
+    }
+}
+void deletion()
+{
+    struct  node *temp,*ptemp;
+    char d[35];
+    int index,condition;
+    pf("Enter name of the contact to be deleted : ");
+    gets(d);
+    gets(d);
+    index=d[0]%65;
+    if(b[index]==NULL)
+    {
+        pf("The contact does not exists");
+        return;
+    }
+    ptemp=b[index];
+    if(strcmp(ptemp->name,d)==0)
+    {
+        b[index]=ptemp->next;
+        free(ptemp);
+        return;
+    }
+    temp=ptemp->next;
+    condition=strcmp(temp->name,d);
+    while(condition!=0&&temp!=NULL)
+    {
+        ptemp=temp;
+        temp=temp->next;
+        condition=strcmp(temp->name,d);
+    }
+    if(temp==NULL)
+    {
+        pf("The contact does not exists in the contacts");
+        return;
+    }
+    ptemp->next=temp->next;
+    free(temp);
+}
+void destroy()
+{
+    int i;
+    struct node *ptemp,*temp;
+    for(i=0;i<26;i++)
+    {
+        if(b[i]==NULL)
+        {
+            continue;
+        }
+        else
+        {
+            ptemp=b[0];
+            temp=ptemp->next;
+            while(temp!=NULL)
+            {
+                ptemp->next=temp->next;
+                free(temp);
+                temp=ptemp->next;
+            }
+            free(ptemp);
+            b[i]=NULL;
+        }
+    }
+    pf("The contacts is underflow now");
+}
+void search()
+{
+    struct node *temp;
+    char name[35];
+    int index,condition;
+    pf("Enter contact to be searched : ");
+    gets(name);
+    gets(name);
+    toupper(name[0]);
+    index=name[0]%65;
+    if(b[index]==NULL)
+    {
+        pf("The contact does not exists");
+        return;
+    }
+    temp=b[index];
+    condition=strcmp(temp->name,name);
+    while(condition!=0&&temp!=NULL)
+    {
+        temp=temp->next;
+        condition=strcmp(temp->name,name);
+    }
+    if(temp==NULL)
+    {
+        pf("The contact does not exists");
+        return;
+    }
+    pf("\nContact name : %s\nContact number : %.0lf",temp->name,temp->no);
+}
